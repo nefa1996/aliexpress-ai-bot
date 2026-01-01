@@ -1,17 +1,15 @@
-import requests
+import csv
 
-def get_best_products(api_key, count=5):
-    url = f"https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.listPromotionProduct/{api_key}?keywords=&start=0&count=50"
-    res = requests.get(url).json().get("result", [])
-    sorted_products = sorted(res, key=lambda x: float(x.get("averageScore",0)) * int(x.get("orderCount",0)), reverse=True)
-    output = []
+def get_best_products_csv(file_path, count=5):
+    products = []
+    with open(file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            # Преобразуем рейтинг и количество заказов в числа для сортировки
+            row['rating'] = float(row.get('rating', 0))
+            row['orders'] = int(row.get('orders', 0))
+            products.append(row)
 
-    for p in sorted_products[:count]:
-        output.append({
-            "title": p.get("productTitle"),
-            "price": p.get("salePrice"),
-            "rating": p.get("averageScore"),
-            "link": p.get("productUrl"),
-            "image": p.get("imageUrl")
-        })
-    return output
+    # Сортировка по рейтингу и количеству заказов
+    products.sort(key=lambda x: x['rating']*0.5 + x['orders']*0.5, reverse=True)
+    return products[:count]

@@ -1,18 +1,19 @@
 import os
+import csv
 import requests
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
-from utils import get_best_products
+from utils import get_best_products_csv
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-API_KEY = os.getenv("ALIEXPRESS_API")
 CHAT_ID = os.getenv("CHANNEL_ID")
+CSV_FILE = "products.csv"  # файл CSV с товарами
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot)
 
 def send_products():
-    products = get_best_products(API_KEY, count=5)
+    products = get_best_products_csv(CSV_FILE, count=5)
     for p in products:
         msg = f"📦 {p['title']}\n💰 {p['price']}\n⭐ {p['rating']} ⭐\n"
         buttons = types.InlineKeyboardMarkup().add(
